@@ -1,0 +1,82 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: c01eec06bd706de61472a08d05d6a5d6efdd8f15e630d89546c4718da3573de0
+
+name:           hChat
+version:        0.1.0.0
+description:    Please see the README on Github at <https://github.com/MajronMan/hChat#readme>
+homepage:       https://github.com/MajronMan/hChat#readme
+bug-reports:    https://github.com/MajronMan/hChat/issues
+author:         Miron Markowski
+maintainer:     majron15@gmail.com
+copyright:      2018 Miron Markowski
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/MajronMan/hChat
+
+library
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , network
+    , network-multicast
+    , stm
+  exposed-modules:
+      Channels
+      Lib
+      Messages
+      Sockets
+      TCP
+      UDP
+  other-modules:
+      Paths_hChat
+  default-language: Haskell2010
+
+executable hChat-exe
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  default-extensions: OverloadedStrings
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , hChat
+    , network
+    , network-multicast
+    , stm
+  other-modules:
+      Paths_hChat
+  default-language: Haskell2010
+
+test-suite hChat-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , hChat
+    , network
+    , network-multicast
+    , stm
+  other-modules:
+      Paths_hChat
+  default-language: Haskell2010

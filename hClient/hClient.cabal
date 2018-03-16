@@ -1,0 +1,103 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 315b45fd6b2aed658c44a8441ac9dc5c81c61d68e3208235e602611adb232e8d
+
+name:           hClient
+version:        0.1.0.0
+description:    Please see the README on Github at <https://github.com/MajronMan/hClient#readme>
+homepage:       https://github.com/MajronMan/hClient#readme
+bug-reports:    https://github.com/MajronMan/hClient/issues
+author:         Miron Markowski
+maintainer:     majron15@gmail.com
+copyright:      2018 Miron Markowski
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/MajronMan/hClient
+
+library
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , conduit
+    , conduit-extra
+    , mtl
+    , network
+    , network-multicast
+    , resourcet
+    , stm
+    , stm-chans
+    , stm-conduit
+  exposed-modules:
+      Channels
+      Conduits
+      Lib
+      Messages
+      Multicast
+      ServerData
+      Sockets
+      TCP
+      UDP
+  other-modules:
+      Paths_hClient
+  default-language: Haskell2010
+
+executable hClient-exe
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  default-extensions: OverloadedStrings
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , conduit
+    , conduit-extra
+    , hClient
+    , mtl
+    , network
+    , network-multicast
+    , resourcet
+    , stm
+    , stm-chans
+    , stm-conduit
+  other-modules:
+      Paths_hClient
+  default-language: Haskell2010
+
+test-suite hClient-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  hs-source-dirs:
+      test
+  default-extensions: OverloadedStrings
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , conduit
+    , conduit-extra
+    , hClient
+    , mtl
+    , network
+    , network-multicast
+    , resourcet
+    , stm
+    , stm-chans
+    , stm-conduit
+  other-modules:
+      Paths_hClient
+  default-language: Haskell2010

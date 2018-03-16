@@ -50,3 +50,6 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - hChat
+
+default-extensions:
+  - OverloadedStrings
