@@ -2,6 +2,7 @@ module Sockets where
 
 import qualified Network.Socket as NS
 import qualified System.IO                    as SI
+import qualified Data.ByteString.Char8 as B8
 
 createAndBindSocket :: NS.PortNumber -> NS.SocketType -> IO NS.Socket
 createAndBindSocket port sockType = do
@@ -12,7 +13,9 @@ createAndBindSocket port sockType = do
   return sock
 
 connToHandle (sock, addr) = do
-  print addr
   hdl <- NS.socketToHandle sock SI.ReadWriteMode
   SI.hSetBuffering hdl SI.LineBuffering
   return hdl
+
+
+rejectClient hdl = B8.hPutStrLn hdl "-1"

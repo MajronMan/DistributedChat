@@ -5,11 +5,18 @@ import qualified Control.Monad.STM            as CMS
 import qualified System.IO                    as SI
 import qualified Data.ByteString.Char8        as B8
 import qualified Control.Monad                as CM
+import qualified Control.Monad.IO.Class as CMI
 
 import Messages
 
 writeToChannel :: TC.TChan Msg -> B8.ByteString -> Int -> IO ()
 writeToChannel chan msg msgNum = CMS.atomically $ TC.writeTChan chan (msgNum, msg)
+
+changeValue chan by = CMS.atomically $ do 
+  value <- TC.readTChan chan 
+  let newVal = value + by
+  TC.writeTChan chan newVal 
+  return newVal
 
 serverChannelLoop :: TC.TChan Msg -> IO a -> IO a
 serverChannelLoop chan loop = do

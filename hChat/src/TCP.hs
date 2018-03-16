@@ -10,16 +10,24 @@ import qualified Control.Monad.Fix            as CMF
 import qualified Control.Monad.STM            as CMS
 
 import Messages
-import Sockets (connToHandle)
+import Sockets (connToHandle, rejectClient)
 import Channels
 
-acceptClientLoop :: NS.Socket -> TC.TChan Msg -> Int -> IO ()
-acceptClientLoop sock chan msgNum = do
+acceptClientLoop :: NS.Socket -> TC.TChan Msg -> TC.TChan Int-> Int -> IO ()
+acceptClientLoop sock chan clientCount msgNum = do
   putStrLn "Awaiting for connections"
   hdl <- NS.accept sock >>= connToHandle
   putStrLn "Accepted new connection"
-  CC.forkIO (runConn hdl chan msgNum)
-  acceptClientLoop sock chan $! msgNum + 1
+  clients <- changeValue clientCount 1
+  putStrLn $ "There are " ++ (show clients) ++ " clients"
+  if clients > 2
+    then do 
+      rejectClient hdl 
+      changeValue clientCount (-1)
+      acceptClientLoop sock chan clientCount msgNum 
+  else do
+    CC.forkIO (runConn hdl chan clientCount msgNum)
+    acceptClientLoop sock chan clientCount $! msgNum + 1
 
 breakLoop :: CE.SomeException -> IO ()
 breakLoop (CE.SomeException _) = return ()
@@ -36,8 +44,8 @@ welcome hdl chan msgNum = do
 
   return name
 
-runConn :: SI.Handle -> TC.TChan Msg -> Int -> IO ()
-runConn hdl chan msgNum = do
+runConn :: SI.Handle -> TC.TChan Msg -> TC.TChan Int -> Int -> IO ()
+runConn hdl chan clientCount msgNum = do
     name <- welcome hdl chan msgNum
     commLine <- CMS.atomically $ TC.dupTChan chan
     reader <- CC.forkIO $ CMF.fix $ clientReadChannelLoop hdl commLine msgNum
@@ -46,3 +54,5 @@ runConn hdl chan msgNum = do
     CC.killThread reader
     writeToChannel chan ("<-- " `B8.append` name `B8.append` " left.") msgNum
     SI.hClose hdl
+    changeValue clientCount (-1)
+    return ()

@@ -27,7 +27,9 @@ runServer = do
   B8.putStrLn "Listening on port 3000"
 
   chan <- CMS.atomically TC.newTChan
+  clientCount <- CMS.atomically TC.newTChan
+  CMS.atomically $ (TC.writeTChan clientCount 0)
   _ <- CC.forkIO $ CMF.fix $ serverChannelLoop chan
   _ <- CC.forkIO $ CMF.fix $ serverLoopUDP sockUDP chan
 
-  acceptClientLoop sockTCP chan 0
+  acceptClientLoop sockTCP chan clientCount 0

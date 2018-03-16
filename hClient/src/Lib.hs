@@ -20,7 +20,7 @@ import qualified Network.Multicast              as NM
 import qualified Network.Socket                 as NS
 import qualified Network.Socket.ByteString      as NSB
 import qualified System.IO                      as SI
-
+import qualified System.Exit as SE
 
 import Sockets
 import UDP
@@ -45,26 +45,29 @@ client host port = CMTR.runResourceT $ do
   CMI.liftIO $ setLineBuffering socketHandleTCP -- inside ResourceT so need to lift
   rId <- CMI.liftIO (SI.hGetLine socketHandleTCP)
   let myId = read rId :: Int
-  (releaseSockUDP, socketUDP) <- createSocketUDP host port
-  (releaseMultiSender, (multiSender, addrMulti)) <- createMultiSender multiHost multiPort
-  (releaseMultiReceiver, multiReceiver) <- createMultiReceiver multiHost multiPort
+  if myId == -1 
+    then CMI.liftIO $ SE.die "Server has too many clients"
+  else do
+    (releaseSockUDP, socketUDP) <- createSocketUDP host port
+    (releaseMultiSender, (multiSender, addrMulti)) <- createMultiSender multiHost multiPort
+    (releaseMultiReceiver, multiReceiver) <- createMultiReceiver multiHost multiPort
 
-  chan <- CMI.liftIO $ CMS.atomically $ CCST.newTBMChan 16
+    chan <- CMI.liftIO $ CMS.atomically $ CCST.newTBMChan 16
 
-  let comm = Communication {
-    cId=myId,
-    cHandleTCP=socketHandleTCP,
-    cSocketUDP=socketUDP,
-    cSocketMulti=multiSender,
-    cAddrMulti=addrMulti
-  }
+    let comm = Communication {
+      cId=myId,
+      cHandleTCP=socketHandleTCP,
+      cSocketUDP=socketUDP,
+      cSocketMulti=multiSender,
+      cAddrMulti=addrMulti
+    }
 
-  (releaseThread, _) <- createReaderThread comm
-  CMI.liftIO $ streamSocketsToOutput socketHandleTCP multiReceiver myId chan
+    (releaseThread, _) <- createReaderThread comm
+    CMI.liftIO $ streamSocketsToOutput socketHandleTCP multiReceiver myId chan
 
-  -- cleanup
-  CMTR.release releaseThread
-  CMTR.release releaseSockTCP
-  CMTR.release releaseSockUDP
-  CMTR.release releaseMultiSender
-  CMTR.release releaseMultiReceiver
+    -- cleanup
+    CMTR.release releaseThread
+    CMTR.release releaseSockTCP
+    CMTR.release releaseSockUDP
+    CMTR.release releaseMultiSender
+    CMTR.release releaseMultiReceiver
